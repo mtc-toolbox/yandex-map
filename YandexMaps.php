@@ -18,6 +18,8 @@ class YandexMaps extends Widget
     public $mapOptions;
     public $additionalOptions = ['searchControlProvider' => 'yandex#search'];
 
+    public $pjaxIds = [];
+
     public $disableScroll   = true;
 
     public $windowWidth = '100%';
@@ -61,34 +63,43 @@ class YandexMaps extends Widget
         YandexMapsAsset::register($view);
 
         $js = <<< JS
-        ymaps.ready(init);
-            var myMap,
-                myPlacemark;
+        ymaps.ready(init_{$this->id});
+            var myMap_{$this->id},
+                myPlacemark_{$this->id};
         
-            function init(){
+            function init_{$this->id}(){
                 myMap = new ymaps.Map("$this->id", {$this->mapOptions}, {$this->additionalOptions});
                 
-                var disableScroll = $this->disableScroll;
+                var disableScroll_{$this->id} = $this->disableScroll;
                 if ($this->disableScroll) {
-                    myMap.behaviors.disable('scrollZoom');                    
+                    myMap_{$this->id}.behaviors.disable('scrollZoom');                    
                 }
 
-                var myPlacemarks = $myPlacemarks;        
+                var myPlacemarks_{$this->id} = $myPlacemarks;        
         
                 for (var i = 0; i < $countPlaces; i++) {
-                    myPlacemark = new ymaps.Placemark([myPlacemarks[i]['latitude'], myPlacemarks[i]['longitude']],
-                    myPlacemarks[i]['options'][0],
-                    myPlacemarks[i]['options'][1],
-                    myPlacemarks[i]['options'][2],
-                    myPlacemarks[i]['options'][3],
-                    myPlacemarks[i]['options'][4],
-                    myPlacemarks[i]['options'][5]
+                    myPlacemark_{$this->id} = new ymaps.Placemark_{$this->id}([myPlacemarks_{$this->id}[i]['latitude'], myPlacemarks[i]_{$this->id}['longitude']],
+                    myPlacemarks_{$this->id}[i]['options'][0],
+                    myPlacemarks_{$this->id}[i]['options'][1],
+                    myPlacemarks_{$this->id}[i]['options'][2],
+                    myPlacemarks_{$this->id}[i]['options'][3],
+                    myPlacemarks_{$this->id}[i]['options'][4],
+                    myPlacemarks_{$this->id}[i]['options'][5]
                     );
                 
-                    myMap.geoObjects.add(myPlacemark);
+                    myMap_{$this->id}.geoObjects.add(myPlacemark_{$this->id});
                 }
             }
 JS;
+        
+        foreach ($this->pjaxIds as $pjaxId) {
+            $js.= "
+            $('#{$pjaxId}').on('pjax:success', function(xhr, textStatus, error, options) {
+                     init_{$this->id}();           
+            });
+            ";
+
+        }
         $view->registerJs($js);
     }
 }
