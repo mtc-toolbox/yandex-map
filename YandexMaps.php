@@ -91,7 +91,7 @@ class YandexMaps extends Widget
                 }
             }
 JS;
-        
+
         foreach ($this->pjaxIds as $pjaxId) {
             $js.= "
             $('#{$pjaxId}').on('pjax:success', function(xhr, textStatus, error, options) {
