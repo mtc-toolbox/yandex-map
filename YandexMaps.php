@@ -78,7 +78,7 @@ class YandexMaps extends Widget
                 var myPlacemarks_{$this->id} = $myPlacemarks;        
         
                 for (var i = 0; i < $countPlaces; i++) {
-                    myPlacemark_{$this->id} = new ymaps.Placemark_{$this->id}([myPlacemarks_{$this->id}[i]['latitude'], myPlacemarks[i]_{$this->id}['longitude']],
+                    myPlacemark_{$this->id} = new ymaps.Placemark([myPlacemarks_{$this->id}[i]['latitude'], myPlacemarks_{$this->id}[i]['longitude']],
                     myPlacemarks_{$this->id}[i]['options'][0],
                     myPlacemarks_{$this->id}[i]['options'][1],
                     myPlacemarks_{$this->id}[i]['options'][2],
