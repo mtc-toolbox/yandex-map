@@ -68,7 +68,7 @@ class YandexMaps extends Widget
                 myPlacemark_{$this->id};
         
             function init_{$this->id}(){
-                myMap = new ymaps.Map("$this->id", {$this->mapOptions}, {$this->additionalOptions});
+                myMap_{$this->id} = new ymaps.Map("$this->id", {$this->mapOptions}, {$this->additionalOptions});
                 
                 var disableScroll_{$this->id} = $this->disableScroll;
                 if ($this->disableScroll) {
