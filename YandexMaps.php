@@ -22,6 +22,8 @@ class YandexMaps extends Widget
 
     public $pjaxIds = [];
 
+    public $pjaxOnly = false;
+
     public $disableScroll = true;
 
     public $windowWidth  = '100%';
@@ -50,9 +52,42 @@ class YandexMaps extends Widget
 
     public function registerClientScript()
     {
-        $countPlaces = count($this->myPlacemarks);
-        $items       = [];
-        $i           = 0;
+        /* @var yii\web\View $view */
+        $view = $this->getView();
+
+        $this->registerAssets();
+
+        $js = $this->buildMainVarsJs();
+
+        $js .= $this->assignMainVars($this->buildPoints());
+
+        $js .= "ymaps.ready(init_{$this->id});";
+
+        $js .= $this->buildCreateMap();
+
+        $js .= $this->buildPjaxEvents();
+
+        $view->registerJs($js);
+    }
+
+    protected function registerAssets()
+    {
+        /* @var yii\web\View $view */
+        $view = $this->getView();
+
+        YandexMapsAsset::register($view);
+    }
+
+    protected function getPointCount()
+    {
+        return count($this->myPlacemarks);
+    }
+
+    protected function buildPoints()
+    {
+
+        $items = [];
+        $i     = 0;
         foreach ($this->myPlacemarks as $one) {
             $items[$i]['latitude']  = $one['latitude'];
             $items[$i]['longitude'] = $one['longitude'];
@@ -60,28 +95,38 @@ class YandexMaps extends Widget
             $i++;
         }
 
-        $myPlacemarks = json_encode($items);
+        return json_encode($items);
 
-        /* @var yii\web\View $view */
-        $view = $this->getView();
+    }
 
-        YandexMapsAsset::register($view);
-
-        $js    = <<< JS
-        if (myMap_{$this->id} === undefined) {
+    protected function buildMainVarsJs()
+    {
+        $js = <<< JS
           var myMap_{$this->id},
                 myPlacemark_{$this->id},
                 myPlacemarks_{$this->id},
                 disableScroll_{$this->id};  
-        }
-        disableScroll_{$this->id} = $this->disableScroll;
-        myPlacemarks_{$this->id} = $myPlacemarks;
+
 JS;
-        if (!Yii::$app->request->isPjax) {
-            $js.="ymaps.ready(init_{$this->id});";
-        }
-        $endJS = <<< JS
-        
+
+        return $js;
+    }
+
+    protected function assignMainVars($placemarks)
+    {
+        $js = <<< JS
+                disableScroll_{$this->id} = $this->disableScroll;
+                myPlacemarks_{$this->id} = $placemarks;
+
+JS;
+
+        return $js;
+    }
+
+    protected function buildCreateMap()
+    {
+        $countPlaces = $this->getPointCount();
+        $endJS       = <<< JS
             function init_{$this->id}(){
                 myMap_{$this->id} = new ymaps.Map("$this->id", {$this->mapOptions}, {$this->additionalOptions});
                 
@@ -103,17 +148,22 @@ JS;
                 }
             }
 JS;
+        return $endJS;
+    }
 
-
+    protected function buildPjaxEvents()
+    {
+        $js = '';
         foreach ($this->pjaxIds as $pjaxId) {
             $js .= "
             $('#{$pjaxId}').on('pjax:success', function(xhr, textStatus, error, options) {
+                    alert(222);
                      init_{$this->id}();           
             });
             ";
-
         }
-        $view->registerJs($js);
-        $view->registerJs($endJS, View::POS_END);
+        return $js;
     }
 }
+
+
