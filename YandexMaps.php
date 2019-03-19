@@ -129,10 +129,11 @@ JS;
         $endJS       = <<< JS
             function init_{$this->id}(){
                 myMap_{$this->id} = new ymaps.Map("$this->id", {$this->mapOptions}, {$this->additionalOptions});
-                
+                alert(111);
                 if (disableScroll_{$this->id}) {
                     myMap_{$this->id}.behaviors.disable('scrollZoom');                    
                 }
+                alert(222);
         
                 for (let i = 0; i < $countPlaces; i++) {
                     myPlacemark_{$this->id} = new ymaps.Placemark([myPlacemarks_{$this->id}[i]['latitude'], myPlacemarks_{$this->id}[i]['longitude']],
@@ -144,6 +145,7 @@ JS;
                     myPlacemarks_{$this->id}[i]['options'][5]
                     );
                 
+                    alert(333);
                     myMap_{$this->id}.geoObjects.add(myPlacemark_{$this->id});
                 }
             }
@@ -157,7 +159,6 @@ JS;
         foreach ($this->pjaxIds as $pjaxId) {
             $js .= "
             $('#{$pjaxId}').on('pjax:success', function(xhr, textStatus, error, options) {
-                    alert(222);
                      init_{$this->id}();           
             });
             ";
